@@ -91,10 +91,10 @@ WSGI_APPLICATION = 'office.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'office',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': '127.0.0.1',
+        'NAME': 'ded4fas3q56mo4',
+        'USER': 'cqxparldfvzivl',
+        'PASSWORD': '1b45a4e8a67e8cd5f6d224bbd7214c80cceeff5e2e415b191c74da4f577b173c',
+        'HOST': 'ec2-99-81-238-134.eu-west-1.compute.amazonaws.com',
         'PORT': '5432',
     }
 }
