@@ -68,6 +68,16 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOW_CREDENTIALS = True
 
+CORS_ORIGIN_WHITELIST = [
+    'forcheck.herokuapp.com',
+    '157.230.26.249',
+    'forcheck.studio',
+]
+
+CORS_ORIGIN_REGEX_WHITELIST = [
+    '*.forcheck.studio',
+
+]
 ROOT_URLCONF = 'office.urls'
 
 TEMPLATES = [
