@@ -72,6 +72,7 @@ CORS_ORIGIN_WHITELIST = [
     'forcheck.herokuapp.com',
     '157.230.26.249',
     'forcheck.studio',
+    'https://forcheck.studio',
 ]
 
 CORS_ORIGIN_REGEX_WHITELIST = [
