@@ -29,8 +29,10 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '&*vyc^i@bwr_02dp!+)ra3lky811l+i@92l@4)%@n9n3x^t3zz'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -39,6 +41,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
 ]
+
 
 # Application definition
 
@@ -102,10 +105,10 @@ WSGI_APPLICATION = 'office.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dca0kg3ae10nhv',
-        'USER': 'dkrpnhqckzzwkx',
-        'PASSWORD': '573abb832bc23e3cb76b369693d6449b91e4c624be4b2d55d71ebe31e88bd510',
-        'HOST': 'ec2-54-172-17-119.compute-1.amazonaws.com',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': '127.0.0.1',
         'PORT': '5432',
     }
 }
