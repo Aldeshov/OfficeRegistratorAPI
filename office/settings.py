@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = '&*vyc^i@bwr_02dp!+)ra3lky811l+i@92l@4)%@n9n3x^t3zz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'forcheck.studio',
@@ -95,10 +95,10 @@ WSGI_APPLICATION = 'office.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ded4fas3q56mo4',
-        'USER': 'cqxparldfvzivl',
-        'PASSWORD': '1b45a4e8a67e8cd5f6d224bbd7214c80cceeff5e2e415b191c74da4f577b173c',
-        'HOST': 'ec2-99-81-238-134.eu-west-1.compute.amazonaws.com',
+        'NAME': 'dca0kg3ae10nhv',
+        'USER': 'dkrpnhqckzzwkx',
+        'PASSWORD': '573abb832bc23e3cb76b369693d6449b91e4c624be4b2d55d71ebe31e88bd510',
+        'HOST': 'ec2-54-172-17-119.compute-1.amazonaws.com',
         'PORT': '5432',
     }
 }
