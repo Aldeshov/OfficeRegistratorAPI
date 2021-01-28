@@ -36,11 +36,8 @@ SECRET_KEY = '&*vyc^i@bwr_02dp!+)ra3lky811l+i@92l@4)%@n9n3x^t3zz'
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'forcheck.studio',
-    'www.forcheck.studio',
     '127.0.0.1',
     'localhost',
-    'forcheck.herokuapp.com'
 ]
 
 # Application definition
