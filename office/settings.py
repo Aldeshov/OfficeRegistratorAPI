@@ -17,11 +17,6 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, 'static'),
-# )
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
@@ -32,9 +27,12 @@ SECRET_KEY = '&*vyc^i@bwr_02dp!+)ra3lky811l+i@92l@4)%@n9n3x^t3zz'
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'forcheck.studio', 'www.forcheck.studio', '157.230.26.249', '127.0.0.1', 'localhost', 'forcheck.herokuapp.com'
+    'forcheck.studio',
+    'www.forcheck.studio',
+    '127.0.0.1',
+    'localhost',
+    'forcheck.herokuapp.com'
 ]
-
 
 # Application definition
 
@@ -68,17 +66,6 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ORIGIN_WHITELIST = [
-    'forcheck.herokuapp.com',
-    '157.230.26.249',
-    'forcheck.studio',
-    'https://forcheck.studio',
-]
-
-CORS_ORIGIN_REGEX_WHITELIST = [
-    '*.forcheck.studio',
-
-]
 ROOT_URLCONF = 'office.urls'
 
 TEMPLATES = [
@@ -154,6 +141,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
