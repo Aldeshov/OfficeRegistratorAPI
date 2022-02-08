@@ -75,6 +75,8 @@ CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'office.urls'
 
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

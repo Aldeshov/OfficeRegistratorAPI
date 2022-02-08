@@ -1,7 +1,7 @@
-Django==2.2.12
-django-cors-headers==3.2.1
-django-filter==2.2.0
-djangorestframework==3.11.0
+Django==3.2
+django-cors-headers==3.11.0
+django-filter==21.1
+djangorestframework==3.13.1
 djangorestframework-jwt==1.11.0
 psycopg2==2.8.5
 PyJWT==1.7.1
