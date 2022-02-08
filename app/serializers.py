@@ -1,80 +1,67 @@
-import datetime
 from rest_framework import serializers
-from django.contrib.auth.models import User
-from app.models import Teacher, Course, Student, File, News
+from app.models import Course, File, News, User
+
+
+class NewsSerializer(serializers.ModelSerializer):
+    date = serializers.DateField(read_only=True)
+
+    class Meta:
+        model = News
+        fields = ('title', 'date', 'body')
 
 
 class UserSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
+    is_student = serializers.ReadOnlyField()
+    is_teacher = serializers.ReadOnlyField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'first_name', 'last_name', 'email')
+        fields = ('id', 'is_student', 'is_teacher', 'username', 'first_name', 'last_name', 'email')
 
 
-class TeacherSerializer(serializers.ModelSerializer):
+class CourseSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    user_id = serializers.IntegerField(write_only=True)
-    user = UserSerializer(many=False, read_only=True)
+    name = serializers.CharField()
+    room = serializers.CharField()
+    credits = serializers.IntegerField()
+    teacher = UserSerializer(read_only=True)
+    schedule = serializers.ListField(child=serializers.ListField(child=serializers.IntegerField()))
 
-    class Meta:
-        model = Teacher
-        fields = ('id', 'user', 'user_id')
+    def validate(self, data):
+        if not self.context.get('user') or not self.context.get('user').is_teacher:
+            raise serializers.ValidationError("Current user must be teacher")
+        return data
 
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name')
+        instance.room = validated_data.get('room')
+        instance.credits = validated_data.get('credits')
+        instance.save()
+        return instance
 
-class CourseSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    user_id = serializers.IntegerField(write_only=True)
-    user = UserSerializer(many=False, read_only=True)
-
-    class Meta:
-        model = Course
-        fields = ('id', 'name', 'credits', 'schedule', 'room', 'user', 'user_id')
+    def create(self, validated_data):
+        validated_data.setdefault('teacher', self.context.get('user'))
+        return Course.objects.create(**validated_data)
 
 
 class FileSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
+    owner = UserSerializer(read_only=True)
     name = serializers.CharField()
     path = serializers.CharField()
-    owner = UserSerializer(read_only=True, many=False)
-    owner_id = serializers.IntegerField(write_only=True)
+
+    def validate(self, data):
+        if not self.context.get('user') or not self.context.get('user').is_teacher:
+            raise serializers.ValidationError("Current user must be teacher")
+        return data
 
     def update(self, instance, validated_data):
-        instance.name = validated_data.get('name')
-        instance.path = validated_data.get('path')
-        instance.owner = User.objects.get(id=validated_data.get("owner_id"))
+        instance.name = validated_data.get('name') or instance.name
+        instance.path = validated_data.get('path') or instance.path
         instance.save()
         return instance
 
     def create(self, validated_data):
+        validated_data.setdefault('owner', self.context.get('user'))
         return File.objects.create(**validated_data)
-
-
-class StudentSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    user = UserSerializer(many=False, read_only=True)
-    courses = CourseSerializer(many=True, read_only=True)
-    files = FileSerializer(many=True)
-
-    class Meta:
-        model = Student
-        fields = ('id', 'user', 'courses', 'files')
-
-
-class NewsSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField()
-    body = serializers.CharField()
-    date = serializers.DateField()
-
-    def update(self, instance, validated_data):
-        instance.title = validated_data.get('title')
-        instance.body = validated_data.get('body')
-        instance.date = datetime.datetime.now()
-        instance.save()
-        return instance
-
-    def create(self, validated_data):
-        news = News.objects.create(title=validated_data.get('title'), body=validated_data.get('city'),
-                                   date=datetime.datetime.now())
-        return news
