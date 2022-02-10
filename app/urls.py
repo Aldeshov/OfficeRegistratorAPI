@@ -1,8 +1,8 @@
 from django.urls import path, re_path
 from rest_framework_jwt.views import obtain_jwt_token
 
-from app.views import CourseListAPIView, CurrentUser, NewsListAPIView, files_view, \
-    CourseDetailAPIView, StudentListAPIView, UserAPIView, CourseFile
+from app.views import CourseListAPIView, CurrentUser, NewsListAPIView, \
+    CourseDetailAPIView, StudentListAPIView, UserAPIView, CourseFile, FileListAPIView
 
 urlpatterns = [
     path('login', obtain_jwt_token),
@@ -12,6 +12,6 @@ urlpatterns = [
     path('user/<int:user_id>/', UserAPIView.as_view()),
     path('user/students/', StudentListAPIView.as_view()),
     re_path(r'^news/$', NewsListAPIView.as_view()),
-    path('files/<int:teacher>/<path:path>/', files_view),
-    path('files/<str:name>/<int:teacher>/<path:path>/', CourseFile.as_view()),
+    re_path(r'^files/$', FileListAPIView.as_view()),
+    path('files/<int:file_id>/', CourseFile.as_view()),
 ]

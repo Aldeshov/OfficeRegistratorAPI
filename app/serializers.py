@@ -48,20 +48,18 @@ class CourseSerializer(serializers.Serializer):
 class FileSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     owner = UserSerializer(read_only=True)
+    students = serializers.ListField(child=serializers.IntegerField(), write_only=True)
     name = serializers.CharField()
     path = serializers.CharField()
 
-    def validate(self, data):
-        if not self.context.get('user') or not self.context.get('user').is_teacher:
-            raise serializers.ValidationError("Current user must be teacher")
-        return data
-
     def update(self, instance, validated_data):
+        validated_data.pop('students')
         instance.name = validated_data.get('name') or instance.name
         instance.path = validated_data.get('path') or instance.path
         instance.save()
         return instance
 
     def create(self, validated_data):
-        validated_data.setdefault('owner', self.context.get('user'))
+        validated_data.pop('students')
+        validated_data.setdefault('owner', self.context.get('request').user)
         return File.objects.create(**validated_data)

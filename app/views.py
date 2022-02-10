@@ -2,11 +2,12 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, generics
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from app.filters import NewsFilter, FileFilter
 from app.models import Course, News, File, User
-from app.filters import NewsFilter
+from app.permissions import IsTeacherOrStudent
 from app.serializers import CourseSerializer, UserSerializer, NewsSerializer, FileSerializer
 
 
@@ -90,47 +91,38 @@ class UserAPIView(APIView):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['GET', 'POST'])
-def files_view(request, path, teacher):
-    if request.method == 'GET':
-        if request.user.is_student:
-            files = request.user.accessed_files.filter(path__startswith=path)
-            if teacher != 0:
-                files = files.filter(owner_id=teacher)
+class FileListAPIView(generics.ListCreateAPIView):
+    serializer_class = FileSerializer
+    filter_backends = (DjangoFilterBackend,)
+    permission_classes = (IsTeacherOrStudent,)
+    filter_class = FileFilter
 
-            serializer = FileSerializer(files, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+    def get_queryset(self):
+        if self.request.user.is_student:
+            return self.request.user.accessed_files
+        elif self.request.user.is_teacher:
+            return self.request.user.files
 
-        if request.user.is_teacher:
-            files = request.user.files.filter(path__startswith=path)
-            serializer = FileSerializer(files, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_403_FORBIDDEN)
+    def perform_create(self, serializer):
+        if not self.request.user.is_teacher:
+            raise PermissionError('Only teachers can create files')
 
-    elif request.method == 'POST':
-        if request.user.is_teacher:
-            student_ids = request.data.get('students')
-            serializer = FileSerializer(data=request.data, context={"user": request.user})
-            if serializer.is_valid():
-                serializer.save()
-                students = User.objects.filter(id__in=student_ids)
-                File.objects.get(id=serializer.data.get('id')).students.set(students)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(status=status.HTTP_403_FORBIDDEN)
+        serializer.save()
+        file = File.objects.get(id=serializer.data.get('id'))
+        file.students.set(User.objects.filter(id__in=self.request.data.get('students')))
 
 
 class CourseFile(APIView):
     @classmethod
-    def get(cls, request, teacher, path, name):
+    def get(cls, request, file_id):
         if request.user.is_teacher:
-            file = request.user.files.filter(name=name, path=path)
+            file = request.user.files.filter(id=file_id)
             if file.exists():
                 serializer = FileSerializer(file[0])
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         elif request.user.is_student:
-            file = request.user.accessed_files.filter(owner_id=teacher, name=name, path=path)
+            file = request.user.accessed_files.filter(id=file_id)
             if file.exists():
                 serializer = FileSerializer(file[0])
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -138,27 +130,24 @@ class CourseFile(APIView):
         return Response(status=status.HTTP_403_FORBIDDEN)
 
     @classmethod
-    def put(cls, request, path, name, **kwargs):
+    def put(cls, request, file_id):
         if request.user.is_teacher:
-            file = request.user.files.filter(name=name, path=path)
-            if file.exists():
-                serializer = FileSerializer(
-                    instance=File.objects.get(id=file[0].id),
-                    data=request.data, context={"user": request.user}
-                )
+            if request.user.files.filter(id=file_id).exists():
+                file = File.objects.get(id=file_id)
+                serializer = FileSerializer(instance=file, data=request.data, context={"user": request.user})
                 if serializer.is_valid():
                     serializer.save()
-                    students = User.objects.filter(id__in=request.data.get('students') or [])
-                    File.objects.get(id=serializer.data.get('id')).students.set(students)
+                    file = File.objects.get(id=serializer.data.get('id'))
+                    file.students.set(User.objects.filter(id__in=request.data.get('students')))
                     return Response(serializer.data, status=status.HTTP_200_OK)
                 return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_403_FORBIDDEN)
 
     @classmethod
-    def delete(cls, request, path, name, **kwargs):
+    def delete(cls, request, file_id):
         if request.user.is_teacher:
-            file = request.user.files.filter(name=name, path=path)
+            file = request.user.files.filter(id=file_id)
             if file.exists():
                 file[0].delete()
                 return Response(status=status.HTTP_200_OK)
